@@ -29,5 +29,7 @@ int main(int argc, char* argv[]) {
 
     printf("Hello, World!\n");
 
+    printf("Test: %s\n", sb_trim(sb_new("---Hello, World!--"), '-')->text);
+
     return 0;
 }

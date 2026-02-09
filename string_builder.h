@@ -209,6 +209,18 @@ StringBuilder *sb_remove_index(StringBuilder *str, size_t index) {
     return str;
 }
 
+StringBuilder *sb_trim(StringBuilder *str, char c) {
+    while (str->text[0] == c) {
+        sb_remove_index(str, 0);
+    }
+
+    while (str->text[str->size - 1] == c) {
+        sb_remove_index(str, str->size - 1);
+    }
+
+    return str;
+}
+
 StringBuilder *sb_reverse(StringBuilder *str) {
     for (size_t i = 0; i < str->size / 2; i++) {
         const char temp = str->text[i];
