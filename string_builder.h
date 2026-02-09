@@ -20,16 +20,27 @@ StringBuilder *sb_new(const char *text) {
     return str;
 }
 
-void sb_resize(StringBuilder *str, size_t newSize) {
+StringBuilder *sb_copy(StringBuilder *str) {
+    return sb_new(str->text);
+}
+
+StringBuilder *sb_trim_capacity(StringBuilder *str) {
+    str->capacity = str->size;
+    str->text = (char *)realloc(str->text, str->size);
+    return str;
+}
+
+StringBuilder *sb_resize(StringBuilder *str, size_t newSize) {
     if (newSize >= str->capacity) {
         str->capacity = (newSize + 1) * 2;
         str->text = (char *)realloc(str->text, str->capacity);
     }
 
     str->size = newSize;
+    return str;
 }
 
-void sb_set_text(StringBuilder *str, const char* newText) {
+StringBuilder *sb_set_text(StringBuilder *str, const char* newText) {
     size_t newTextSize = strlen(newText);
 
     if (newTextSize >= str->capacity) {
@@ -39,26 +50,25 @@ void sb_set_text(StringBuilder *str, const char* newText) {
 
     str->size = newTextSize;
     memcpy(str->text, newText, str->size + 1);
-}
-
-StringBuilder *sb_copy(StringBuilder *str) {
-    return sb_new(str->text);
+    return str;
 }
 
 char sb_get(StringBuilder *str, const size_t index) {
     return str->text[index % str->size];
 }
 
-void sb_set(StringBuilder *str, const size_t index, const char c) {
+StringBuilder *sb_set(StringBuilder *str, const size_t index, const char c) {
     str->text[index % str->size] = c;
+    return str;
 }
 
-void sb_append(StringBuilder *str, const char *newText) {
+StringBuilder *sb_append(StringBuilder *str, const char *newText) {
     size_t newTextSize = strlen(newText);
     size_t oldSize = str->size;
 
     sb_resize(str, str->size + newTextSize);
-    memcpy(str->text + oldSize, newText, newTextSize);
+    memcpy(str->text + oldSize, newText, newTextSize + 1);
+    return str;
 }
 
 int sb_equals(StringBuilder *str, const char* otherText) {
@@ -139,16 +149,22 @@ int sb_contains(StringBuilder *str, const char *substring) {
     return 0;
 }
 
-List *sb_split(StringBuilder *str, const char *value) {
+// Pass -1 for 'maxCount' to split to the end of the string
+List *sb_split(StringBuilder *str, const char *value, int64_t maxCount) {
     size_t valueSize = strlen(value);
     List *result = list_new(1024);
     
     list_append(result, sb_new(""));
 
+    size_t count = 0;
+
     for (size_t i = 0; i < str->size; i++) {
         if (sb_starts_with(str, value, i)) {
-            list_append(result, sb_new(""));
-            i += valueSize - 1;
+            if (maxCount == -1 || count < maxCount) {
+                list_append(result, sb_new(""));
+                i += valueSize - 1;
+                count++;
+            }
         } else {
             char temp[2] = { str->text[i], '\0' };
             sb_append(((StringBuilder **)result->data)[result->size - 1], temp);
@@ -158,7 +174,8 @@ List *sb_split(StringBuilder *str, const char *value) {
     return result;
 }
 
-void sb_replace(StringBuilder *str, const char *a, const char *b) {
+StringBuilder *sb_replace(StringBuilder *str, const char *a, const char *b) {
+    size_t aSkip = strlen(a) - 1;
     StringBuilder *tempStr = sb_new("");
 
     for (size_t i = 0; i < str->size; i++) {
@@ -167,6 +184,7 @@ void sb_replace(StringBuilder *str, const char *a, const char *b) {
             sb_append(tempStr, temp);
         } else {
             sb_append(tempStr, b);
+            i += aSkip;
         }
     }
 
@@ -175,23 +193,36 @@ void sb_replace(StringBuilder *str, const char *a, const char *b) {
     str->capacity = tempStr->capacity;
     str->size = tempStr->size;
     free(tempStr);
+    return str;
 }
 
-void sb_remove(StringBuilder *str, const char* text) {
-    sb_replace(str, text, "");
+StringBuilder *sb_remove(StringBuilder *str, const char* text) {
+    return sb_replace(str, text, "");
 }
 
-void sb_reverse(StringBuilder *str) {
+StringBuilder *sb_remove_index(StringBuilder *str, size_t index) {
+    for (size_t i = index + 1; i < str->size + 1; i++) {
+        str->text[i - 1] = str->text[i]; 
+    }
+
+    str->size -= 1;
+    return str;
+}
+
+StringBuilder *sb_reverse(StringBuilder *str) {
     for (size_t i = 0; i < str->size / 2; i++) {
         const char temp = str->text[i];
         str->text[i] = str->text[str->size - i - 1];
         str->text[str->size - i - 1] = temp;
     }
+
+    return str;
 }
 
-void sb_clear(StringBuilder *str) {
+StringBuilder *sb_clear(StringBuilder *str) {
     str->text[0] = '\0';
     str->size = 0;
+    return str;
 }
 
 void sb_free(StringBuilder **str) {
