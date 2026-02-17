@@ -1,0 +1,102 @@
+#-----------------------------------------------------------
+# file  textCode.txt
+# desc  A simple code file.
+#-----------------------------------------------------------
+
+@replace WHILE while
+
+var window = system("win32.makeWindow", ...)
+var WINDOW_DESTROYED = 0
+var WINDOW_RESIZED = 1
+var running = false
+
+while running
+    var event
+
+    while system("win32.getWindowEvent", window, &event)
+        switch event
+            case WINDOW_DESTROYED
+                running = false
+            case WINDOW_RESIZED
+                var windowSize = system("win32.getWindowSize", window)
+                print("size: {}x{}", windowSize.width, windowSize.height)
+        end
+    end
+
+    # Update the window
+    system("win32.updateWindow", window)
+end
+
+var myList = [
+    10,
+    "Test"
+]
+
+var employeeDict = {
+    "name": "Test",
+    "hours-worked": 10
+}
+
+print(employeeDict["name"])
+print(employeeDict["hours_worked"])
+
+class Base1
+    public var defaultVar_base1
+end
+
+class Base2
+    public var defaultVar_base2
+end
+
+class Employee : Base1, Base2
+    public var name
+    public var hours_worked
+
+    public Employee(name, hours_worked)
+        Base1(1)
+        Base2(2)
+
+        this.name = name
+        this.hours_worked = hours_worked
+    end
+
+    public func display()
+        print(this.name)
+        print(this.hours_worked)
+
+        print(this.defaultVar_base1)
+        print(this.defaultVar_base2)
+    end
+end
+
+var employee = Employee("Bob", 12)
+employee.display()
+
+var x = 0
+
+func myFunction(x, y)
+    return x + y
+end
+ 
+var i = 0
+
+while i < 10
+    if x != 4
+        print(myFunction(x, 10))
+        x = x + 2
+    elif 10 + 10 == 20
+        print("10 + 10 = 20")
+    else
+        break
+    end
+
+    i = i + 1
+    continue
+end
+
+x = 0
+
+for i = 0..10..2
+    print(myFunction(x, 10))
+    x = x + 2
+end

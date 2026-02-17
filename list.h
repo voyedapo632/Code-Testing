@@ -49,49 +49,49 @@ static double list_get_num(List* list, size_t index) {
     return 0.0;
 }
 
-static int list_set(List* list, size_t index, void* item) {
+static List* list_set(List* list, size_t index, void* item) {
     if (list != NULL && list->data != NULL) {
         list->data[index % list->size] = item;
-        return 1;
+        return list;
     }
 
-    return 0;
+    return NULL;
 }
 
-static int list_safe_set(List* list, size_t index, void* item) {
+static List* list_safe_set(List* list, size_t index, void* item) {
     if (list != NULL && list->data != NULL) {
         if (index < list->size) {
             list->data[index] = item;
-            return 1;
+            return list;
         }
     }
 
-    return 0;
+    return NULL;
 }
 
-static int list_set_num(List* list, size_t index, double num) {
+static List* list_set_num(List* list, size_t index, double num) {
     if (list != NULL && list->data != NULL) {
         ((double*)list->data)[index % list->size] = num;
-        return 1;
+        return list;
     }
 
-    return 0;
+    return NULL;
 }
 
-static int list_safe_set_num(List* list, size_t index, double num) {
+static List* list_safe_set_num(List* list, size_t index, double num) {
     if (list != NULL && list->data != NULL) {
         if (index < list->size) {
             ((double*)list->data)[index] = num;
-            return 1;
+            return list;
         }
     }
 
-    return 0;
+    return NULL;
 }
 
-static int list_resize(List* list, size_t newSize) {
+static List* list_resize(List* list, size_t newSize) {
     if (list == NULL) {
-        return 0;
+        return NULL;
     }
 
     if (newSize <= list->capacity) {
@@ -101,7 +101,7 @@ static int list_resize(List* list, size_t newSize) {
         void** newData = (void**)calloc(newCapacity, sizeof(void*));
 
         if (newData == NULL) {
-            return 0;
+            return NULL;
         }
         
         if (list->data != NULL) {
@@ -114,38 +114,38 @@ static int list_resize(List* list, size_t newSize) {
         list->size = newSize;
     }
 
-    return 1;
+    return list;
 }
 
-static int list_append(List* list, void* item) {
+static List* list_append(List* list, void* item) {
     if (list != NULL) {
         if (list_resize(list, list->size + 1)) {
             list->data[list->size - 1] = item;
-            return 1;
+            return list;
         }
     }
 
-    return 0;
+    return NULL;
 }
 
-static int list_append_num(List* list, double num) {
+static List* list_append_num(List* list, double num) {
     if (list != NULL) {
         if (list_resize(list, list->size + 1)) {
             ((double*)list->data)[list->size - 1] = num;
-            return 1;
+            return list;
         }
     }
 
-    return 0;
+    return NULL;
 }
 
-static int list_clear(List* list) {
+static List* list_clear(List* list) {
     if (list == NULL) {
-        return 0;
+        return NULL;
     }
 
     list->size = 0;
-    return 1;
+    return list;
 }
 
 static int list_free(List** list) {
