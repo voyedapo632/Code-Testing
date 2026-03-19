@@ -14,7 +14,6 @@ typedef struct Map {
     void** data;
     size_t capacity;
     size_t count;
-    void* empty_address;
 } Map;
 
 static Map* map_new(size_t initalCapacity) {
@@ -25,9 +24,8 @@ static Map* map_new(size_t initalCapacity) {
     }
 
     map->data = (void**)calloc(initalCapacity, sizeof(void*));
-    map->empty_address = (void*)malloc(1);
     
-    if ((map->data == NULL && initalCapacity != 0) || map->empty_address == NULL) {
+    if (map->data == NULL && initalCapacity != 0) {
         free(map);
         return NULL;
     }
@@ -37,15 +35,15 @@ static Map* map_new(size_t initalCapacity) {
     return map;
 }
 
-static int map_resize(Map* map, size_t newCapacity) {
+static Map* map_resize(Map* map, size_t newCapacity) {
     if (map == NULL) {
-        return 0;
+        return NULL;
     }
 
     void** newData = (void**)calloc(newCapacity, sizeof(void*));
 
     if (newData == NULL) {
-        return 0;
+        return NULL;
     }
     
     if (map->data != NULL) {
@@ -55,8 +53,7 @@ static int map_resize(Map* map, size_t newCapacity) {
 
     map->data = newData;
     map->capacity = newCapacity;
-
-    return 1;
+    return map;
 }
 
 static size_t hash_value(const char* buff) {
@@ -73,9 +70,9 @@ static size_t hash_value(const char* buff) {
     return value;
 }
 
-static int map_put(Map* map, const char* buff, void* item) {
+static Map* map_put(Map* map, const char* buff, void* item) {
     if (map == NULL) {
-        return 0;
+        return NULL;
     }
 
     if (map->capacity == 0) {
@@ -87,18 +84,17 @@ static int map_put(Map* map, const char* buff, void* item) {
     size_t index = hash_value(buff) % map->capacity;
 
     if (map->data[index] != NULL) {
-        return 0;
+        return NULL;
     }
     
     map->data[index] = item;
     map->count++;
-
-    return 1;
+    return map;
 }
 
-static int map_put_num(Map* map, const char* buff, double num) {
+static Map* map_put_num(Map* map, const char* buff, double num) {
     if (map == NULL) {
-        return 0;
+        return NULL;
     }
 
     if (map->capacity == 0) {
@@ -110,13 +106,12 @@ static int map_put_num(Map* map, const char* buff, double num) {
     size_t index = hash_value(buff) % map->capacity;
 
     if (map->data[index] != NULL) {
-        return 0;
+        return NULL;
     }
     
     ((double*)map->data)[index] = num;
     map->count++;
-
-    return 1;
+    return map;
 }
 
 static void* map_get(Map* map, const char* buff) {
@@ -131,16 +126,16 @@ static void* map_get(Map* map, const char* buff) {
     return NULL;
 }
 
-static int map_set(Map* map, const char* buff, void* item) {
+static Map* map_set(Map* map, const char* buff, void* item) {
     if (map == NULL) {
-        return 0;
+        return NULL;
     }
 
     if (map->data != NULL) {
         map->data[hash_value(buff) % map->capacity] = item;
     }
 
-    return 1;
+    return map;
 }
 
 static double map_get_num(Map* map, const char* buff) {
@@ -155,25 +150,25 @@ static double map_get_num(Map* map, const char* buff) {
     return 0.0;
 }
 
-static int map_set_num(Map* map, const char* buff, double num) {
+static Map* map_set_num(Map* map, const char* buff, double num) {
     if (map == NULL) {
-        return 0;
+        return NULL;
     }
 
     if (map->data != NULL) {
         ((double*)map->data)[hash_value(buff) % map->capacity] = num;
     }
 
-    return 1;
+    return map;
 }
 
-static int map_clear(Map* map) {
+static Map* map_clear(Map* map) {
     if (map == NULL) {
-        return 0;
+        return NULL;
     }
 
     memset(map->data, 0, map->capacity);
-    return 1;
+    return map;
 }
 
 static List* map_to_list(Map* map) {
@@ -201,10 +196,6 @@ static int map_free(Map** map) {
 
     if ((*map)->data != NULL) {
         free((*map)->data);
-    }
-
-    if ((*map)->empty_address != NULL) {
-        free((*map)->empty_address);
     }
 
     free(*map);
