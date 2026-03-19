@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 
 #include "array_list.h"
@@ -68,10 +69,9 @@ int main(int argc, char *argv[]) {
     arr_list_free(&num_arr);
 
     // Dictionary
-    Dictionary *dict = dict_new(64, DOUBLE_INFO);
-    typedef struct { const char *key; double value; } Key;
-
-    Key dictData[] = {
+    Dictionary *dict = dict_new(256, DOUBLE_INFO);
+    
+    struct { const char *key; double value; } dictData[] = {
         { "n1", 10.0 },
         { "n2", 20.0 },
         { "n3", 30.0 }
